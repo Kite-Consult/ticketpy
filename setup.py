@@ -8,15 +8,15 @@ def read(fname):
 
 
 setup(
-    name='ticketpy',
+    name="ticketpy",
     version=ticketpy.__version__,
     author=ticketpy.__author__,
-    author_email='git@edward.sh',
+    author_email="git@edward.sh",
     description="Python wrapper/SDK for the Ticketmaster Discovery API",
-    long_description=read('README.rst'),
-    license='MIT',
-    keywords='Ticketmaster',
-    url='https://github.com/arcward/ticketpy',
-    packages=['ticketpy'],
-    install_requires=['requests']
+    long_description=read("README.rst"),
+    license="MIT",
+    keywords="Ticketmaster",
+    url="https://github.com/arcward/ticketpy",
+    packages=["ticketpy"],
+    install_requires=["requests"],
 )

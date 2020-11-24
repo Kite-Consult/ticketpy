@@ -3,52 +3,48 @@ import logging
 import requests
 from collections import namedtuple
 from urllib import parse
-from ticketpy.query import (
-    AttractionQuery,
-    ClassificationQuery,
-    EventQuery,
-    VenueQuery
-)
+from ticketpy.query import AttractionQuery, ClassificationQuery, EventQuery, VenueQuery
 from ticketpy.model import Page
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 sh = logging.StreamHandler()
 sh.setLevel(logging.INFO)
-sf = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+sf = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 sh.setFormatter(sf)
 log.addHandler(sh)
 
 
 class ApiClient:
     """ApiClient is the main wrapper for the Discovery API.
-    
-    **Example**:    
+
+    **Example**:
     Get the first page result for venues matching keyword '*Tabernacle*':
-    
+
     .. code-block:: python
-    
+
         import ticketpy
-        
+
         client = ticketpy.ApiClient("your_api_key")
         resp = client.venues.find(keyword="Tabernacle").one()
         for venue in resp:
             print(venue.name)
-    
+
     Output::
-    
+
         Tabernacle
         The Tabernacle
         Tabernacle, Notting Hill
         Bethel Tabernacle
         Revivaltime Tabernacle
-        ...       
+        ...
 
     Request URLs end up looking like:
     http://app.ticketmaster.com/discovery/v2/events.json?apikey={api_key}
     """
-    root_url = 'https://app.ticketmaster.com'
-    url = 'https://app.ticketmaster.com/discovery/v2'
+
+    root_url = "https://app.ticketmaster.com"
+    url = "https://app.ticketmaster.com/discovery/v2"
 
     def __init__(self, api_key):
         self.__api_key = None
@@ -65,9 +61,9 @@ class ApiClient:
 
     def search(self, method, **kwargs):
         """Generic API request
-        
+
         :param method: Search type (*events*, *venues*...)
-        :param kwargs: Search parameters (*venueId*, *eventId*, 
+        :param kwargs: Search parameters (*venueId*, *eventId*,
             *latlong*, etc...)
         :return: ``PagedResponse``
         """
@@ -79,24 +75,24 @@ class ApiClient:
         updates = self.api_key
 
         for k, v in kwargs.items():
-            if k in ['includeTBA', 'includeTBD', 'includeTest']:
+            if k in ["includeTBA", "includeTBD", "includeTest"]:
                 updates[k] = self.__yes_no_only(v)
-            elif k in ['size', 'radius', 'marketId']:
+            elif k in ["size", "radius", "marketId"]:
                 updates[k] = str(v)
         kwargs.update(updates)
         log.debug(kwargs)
         urls = {
-            'events': self.__method_url('events'),
-            'venues': self.__method_url('venues'),
-            'attractions': self.__method_url('attractions'),
-            'classifications': self.__method_url('classifications')
+            "events": self.__method_url("events"),
+            "venues": self.__method_url("venues"),
+            "attractions": self.__method_url("attractions"),
+            "classifications": self.__method_url("classifications"),
         }
         resp = requests.get(urls[method], params=kwargs)
         return PagedResponse(self, self._handle_response(resp))
 
     def _handle_response(self, response):
         """Raises ``ApiException`` if needed, or returns response JSON obj
-        
+
         Status codes
          * 401 = Invalid API key or rate limit quota violation
          * 400 = Invalid URL parameter
@@ -119,34 +115,29 @@ class ApiClient:
     def __error(response):
         """HTTP status code 400, or something with 'errors' object"""
         rj = response.json()
-        error = namedtuple('error', ['code', 'detail', 'href'])
+        error = namedtuple("error", ["code", "detail", "href"])
         errors = [
-            error(err['code'], err['detail'], err['_links']['about']['href'])
-            for err in rj['errors']
+            error(err["code"], err["detail"], err["_links"]["about"]["href"])
+            for err in rj["errors"]
         ]
-        log.error('URL: {}\nErrors: {}'.format(response.url, errors))
+        log.error("URL: {}\nErrors: {}".format(response.url, errors))
         raise ApiException(response.status_code, errors, response.url)
 
     @staticmethod
     def __fault(response):
         """HTTP status code 401, or something with 'faults' object"""
         rj = response.json()
-        fault_str = rj['fault']['faultstring']
-        detail = rj['fault']['detail']
-        log.error('URL: {}, Faultstr: {}'.format(response.url, fault_str))
-        raise ApiException(
-            response.status_code,
-            fault_str,
-            detail,
-            response.url
-        )
+        fault_str = rj["fault"]["faultstring"]
+        detail = rj["fault"]["detail"]
+        log.error("URL: {}, Faultstr: {}".format(response.url, fault_str))
+        raise ApiException(response.status_code, fault_str, detail, response.url)
 
     def __unknown_error(self, response):
         """Unexpected HTTP status code (not 200, 400, or 401)"""
         rj = response.json()
-        if 'fault' in rj:
+        if "fault" in rj:
             self.__fault(response)
-        elif 'errors' in rj:
+        elif "errors" in rj:
             self.__error(response)
         else:
             raise ApiException(response.status_code, response.text)
@@ -162,8 +153,8 @@ class ApiClient:
 
     def _parse_link(self, link):
         """Parses link into base URL and dict of parameters"""
-        parsed_link = namedtuple('link', ['url', 'params'])
-        link_url, link_params = link.split('?')
+        parsed_link = namedtuple("link", ["url", "params"])
+        link_url, link_params = link.split("?")
         params = self._link_params(link_params)
         return parsed_link(link_url, params)
 
@@ -183,7 +174,7 @@ class ApiClient:
     @api_key.setter
     def api_key(self, api_key):
         # Set this way by default to pass in request params
-        self.__api_key = {'apikey': api_key}
+        self.__api_key = {"apikey": api_key}
 
     @staticmethod
     def __method_url(method):
@@ -194,21 +185,23 @@ class ApiClient:
     def __yes_no_only(s):
         """Helper for parameters expecting ['yes', 'no', 'only']"""
         s = str(s).lower()
-        if s in ['true', 'yes']:
-            s = 'yes'
-        elif s in ['false', 'no']:
-            s = 'no'
+        if s in ["true", "yes"]:
+            s = "yes"
+        elif s in ["false", "no"]:
+            s = "no"
         return s
 
 
 class ApiException(Exception):
     """Exception thrown for API-related error messages"""
+
     def __init__(self, *args):
         super().__init__(*args)
 
 
 class PagedResponse:
     """Iterates through API response pages"""
+
     def __init__(self, api_client, response):
         self.api_client = api_client
         self.page = None
@@ -216,10 +209,10 @@ class PagedResponse:
 
     def limit(self, max_pages=5):
         """Retrieve X number of pages, returning a ``list`` of all entities.
-        
-        Rather than iterating through ``PagedResponse`` to retrieve 
-        each page (and its events/venues/etc), ``limit()``  will 
-        automatically iterate up to ``max_pages`` and return 
+
+        Rather than iterating through ``PagedResponse`` to retrieve
+        each page (and its events/venues/etc), ``limit()``  will
+        automatically iterate up to ``max_pages`` and return
         a flat/joined list of items in each ``Page``
 
         :param max_pages: Max page requests to make before returning list
@@ -243,7 +236,7 @@ class PagedResponse:
 
         Use ``limit()`` to restrict the number of page requests being made.
         **WARNING**: Generic searches may involve *a lot* of pages...
-        
+
         :return: Flat list of results
         """
         # TODO Rename this since all() is a built-in function...
@@ -251,10 +244,10 @@ class PagedResponse:
 
     def __iter__(self):
         yield self.page
-        next_url = self.page.links.get('next')
+        next_url = self.page.links.get("next")
         while next_url:
             log.debug("Requesting page: {}".format(next_url))
             pg = self.api_client.get_url(next_url)
-            next_url = pg.links.get('next')
+            next_url = pg.links.get("next")
             yield pg
         return
