@@ -1,6 +1,10 @@
 """Classes to handle API queries/searches"""
+from ticketpy.model import Attraction
+from ticketpy.model import Classification
+from ticketpy.model import Event
+from ticketpy.model import Venue
+
 import requests
-from ticketpy.model import Venue, Event, Attraction, Classification
 
 
 class BaseQuery:

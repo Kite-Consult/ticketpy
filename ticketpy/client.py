@@ -1,10 +1,15 @@
 """API client classes"""
+from collections import namedtuple
+from ticketpy.model import Page
+from ticketpy.query import AttractionQuery
+from ticketpy.query import ClassificationQuery
+from ticketpy.query import EventQuery
+from ticketpy.query import VenueQuery
+from urllib import parse
+
 import logging
 import requests
-from collections import namedtuple
-from urllib import parse
-from ticketpy.query import AttractionQuery, ClassificationQuery, EventQuery, VenueQuery
-from ticketpy.model import Page
+
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)

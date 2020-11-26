@@ -1,5 +1,6 @@
 """Models for API objects"""
 from datetime import datetime
+
 import re
 import ticketpy
 

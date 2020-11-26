@@ -1,9 +1,15 @@
-from unittest import TestCase, skip
 from configparser import ConfigParser
+from math import asin
+from math import cos
+from math import radians
+from math import sin
+from math import sqrt
+from ticketpy.client import ApiException
+from unittest import skip
+from unittest import TestCase
+
 import os
 import ticketpy
-from ticketpy.client import ApiException
-from math import radians, cos, sin, asin, sqrt
 
 
 def haversine(latlon1, latlon2):
