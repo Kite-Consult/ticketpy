@@ -266,6 +266,7 @@ class Venue:
         address=None,
         city=None,
         state_code=None,
+        country_code=None,
         postal_code=None,
         latitude=None,
         longitude=None,
@@ -289,6 +290,7 @@ class Venue:
         self.city = city
         #: State code (ex: 'GA' not 'Georgia')
         self.state_code = state_code
+        self.country_code = country_code
         self.latitude = latitude
         self.longitude = longitude
         self.timezone = timezone
@@ -311,6 +313,7 @@ class Venue:
             "postal_code": self.postal_code,
             "city": self.city,
             "state_code": self.state_code,
+            "country_code": self.country_code,
             "timezone": self.timezone,
             "latitude": self.latitude,
             "longitude": self.longitude,
@@ -345,12 +348,14 @@ class Venue:
             v.longitude = json_venue["location"].get("longitude")
         if "state" in json_venue:
             v.state_code = json_venue["state"].get("stateCode")
+        if "country" in json_venue:
+            v.country_code = json_venue["country"].get("countryCode")
 
         _assign_links(v, json_venue)
         return v
 
     def __str__(self):
-        return ("{name} at {address} in " "{city} {state_code}").format(**self.__dict__)
+        return ("{name} in {city} {country_code}").format(**self.__dict__)
 
 
 class Attraction:
