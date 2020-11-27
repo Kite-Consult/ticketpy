@@ -145,6 +145,7 @@ class Event:
         self.__utc_datetime = None
         if utc_datetime is not None:
             self.utc_datetime = utc_datetime
+        self.json_obj = {}
 
     @property
     def utc_datetime(self):
@@ -198,6 +199,7 @@ class Event:
                 venues.append(Venue.from_json(v))
         e.venues = venues
         _assign_links(e, json_event)
+        e.json_obj = json_event
         return e
 
     def __str__(self):
@@ -381,6 +383,7 @@ class Attraction:
         self.images = images
         self.test = test
         self.links = links
+        self.json_obj = {}
 
     @staticmethod
     def from_json(json_obj):
@@ -394,6 +397,7 @@ class Attraction:
         att.images = json_obj.get("images")
         classifications = json_obj.get("classifications")
         att.classifications = [Classification.from_json(cl) for cl in classifications]
+        att.json_obj = json_obj
 
         _assign_links(att, json_obj)
         return att
